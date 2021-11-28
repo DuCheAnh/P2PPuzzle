@@ -1,0 +1,159 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Font/basic_font.tres" type="DynamicFont" id=1]
+[ext_resource path="res://ServerListener.tscn" type="PackedScene" id=2]
+[ext_resource path="res://ServerBrowser.gd" type="Script" id=3]
+
+[sub_resource type="Animation" id=1]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:text")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ "Searching for server" ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "Searching"
+length = 0.6
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:text")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ " Searching for server", " Searching for server.", " Searching for server..", " Searching for server..." ]
+}
+
+[node name="ServerBrowser" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 86.0
+margin_top = 74.0
+margin_right = -78.0
+margin_bottom = -74.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ManualSetupButton" type="Button" parent="BackgroundPanel"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -254.0
+margin_top = -54.0
+custom_fonts/font = ExtResource( 1 )
+text = "Manual setup"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GoBackButton" type="Button" parent="BackgroundPanel"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -54.0
+margin_right = 254.0
+custom_fonts/font = ExtResource( 1 )
+text = "Go back"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerContainer" type="VBoxContainer" parent="BackgroundPanel"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -350.0
+margin_top = 64.0
+margin_right = 350.0
+margin_bottom = 112.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SearchingLabel" type="Label" parent="BackgroundPanel/ServerContainer"]
+margin_right = 700.0
+margin_bottom = 48.0
+custom_fonts/font = ExtResource( 1 )
+text = "Searching for server"
+align = 1
+valign = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BackgroundPanel/ServerContainer/SearchingLabel"]
+autoplay = "Searching"
+playback_speed = 0.5
+anims/RESET = SubResource( 1 )
+anims/Searching = SubResource( 2 )
+
+[node name="ManualVBox" type="VBoxContainer" parent="BackgroundPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -350.0
+margin_top = -263.0
+margin_right = 350.0
+margin_bottom = 39.0
+custom_constants/separation = 50
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TypeInServerIPLabel" type="Label" parent="BackgroundPanel/ManualVBox"]
+margin_right = 700.0
+margin_bottom = 48.0
+custom_fonts/font = ExtResource( 1 )
+text = "Type in server IP"
+align = 1
+valign = 1
+
+[node name="ServerIPTextEdit" type="TextEdit" parent="BackgroundPanel/ManualVBox"]
+margin_top = 98.0
+margin_right = 700.0
+margin_bottom = 198.0
+rect_min_size = Vector2( 700, 100 )
+
+[node name="JoinServerButton" type="Button" parent="BackgroundPanel/ManualVBox"]
+margin_top = 248.0
+margin_right = 700.0
+margin_bottom = 302.0
+custom_fonts/font = ExtResource( 1 )
+text = "Join Server"
+
+[node name="ServerBrowserLabel" type="Label" parent="BackgroundPanel"]
+anchor_right = 1.0
+margin_top = -48.0
+custom_fonts/font = ExtResource( 1 )
+text = "Server Browser"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ServerListener" parent="." instance=ExtResource( 2 )]
+
+[connection signal="pressed" from="BackgroundPanel/ManualSetupButton" to="." method="_on_ManualSetupButton_pressed"]
+[connection signal="pressed" from="BackgroundPanel/GoBackButton" to="." method="_on_GoBackButton_pressed"]
+[connection signal="pressed" from="BackgroundPanel/ManualVBox/JoinServerButton" to="." method="_on_JoinServerButton_pressed"]
+[connection signal="new_server" from="ServerListener" to="." method="_on_ServerListener_new_server"]
+[connection signal="remove_server" from="ServerListener" to="." method="_on_ServerListener_remove_server"]

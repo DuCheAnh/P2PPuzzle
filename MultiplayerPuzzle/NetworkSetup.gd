@@ -3,7 +3,7 @@ extends Control
 onready var player = load("res://Player.tscn")
 
 onready var multiplayer_config_ui = $MultiplayerConfig
-onready var server_ip_address = $MultiplayerConfig/VBoxContainer/ServerIP
+onready var username_text_edit = $MultiplayerConfig/VBoxContainer/UsernameTextEdit
 onready var device_ip_address = $CanvasLayer/DeviceIP
 
 func _ready() -> void:
@@ -33,13 +33,14 @@ func _connected_to_server() -> void:
 	instance_player(get_tree().get_network_unique_id())
 
 func _on_CreateServerButton_pressed():
-	multiplayer_config_ui.hide()
-	Network.create_server()
-	instance_player(get_tree().get_network_unique_id())
+	if username_text_edit.text!="":
+		Network.current_player_username=username_text_edit.text
+		multiplayer_config_ui.hide()
+		Network.create_server()
+		instance_player(get_tree().get_network_unique_id())
 
 func _on_JoinServerButton_pressed():
-	if server_ip_address.text != "":
+	if username_text_edit.text != "":
 		multiplayer_config_ui.hide()
-		Network.ip_address  = server_ip_address.text
-		Network.join_server()
+		Global.instance_node(load("res://ServerBrowser.tscn"),self)
 
