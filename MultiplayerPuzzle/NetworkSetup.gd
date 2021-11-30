@@ -30,7 +30,7 @@ func instance_player(id) -> void:
 	var player_instance = Global.instance_node_at_location(player,Persistents,Vector2(rand_range(0,1920),rand_range(0,1080)))
 	player_instance.name=str(id)
 	player_instance.set_network_master(id)
-
+	player_instance.username = username_text_edit.text
 func _player_connected(id) -> void:
 	print("Player " + str(id) + " connected")
 	instance_player(id)
@@ -38,6 +38,7 @@ func _player_connected(id) -> void:
 func _player_disconnected(id) -> void:
 	print("Player " + str(id) + " disconnected")
 	if Persistents.has_node(str(id)):
+		Persistents.get_node(str(id)).username_text_instance.queue_free()
 		Persistents.get_node(str(id)).queue_free()
 
 func _connected_to_server() -> void:

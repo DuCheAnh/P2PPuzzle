@@ -1,5 +1,7 @@
 extends KinematicBody2D
 
+var username_text = load("res://UserNameText.tscn")
+
 export (int) var speed = 500
 export (int) var jump_speed = -1800
 export (int) var gravity = 4000
@@ -10,18 +12,30 @@ puppet var puppet_sprite = ""
 puppet var puppet_flip = false
 puppet var puppet_scale = Vector2(1,1)
 puppet var puppet_hp = 10 setget puppet_hp_set
+puppet var puppet_username = "" setget puppet_username_set
 
 onready var sprite = $AnimatedSprite
 onready var tween = $Tween
 onready var hit_timer = $HitTimer
+onready var camera = $Camera2D
 
 var hp = 10 setget set_hp
 var velocity = Vector2.ZERO
 var was_on_floor = false
 var gravity_disabled  = true
+var username setget username_set
+var username_text_instance = null
 
-func _process(delta):
+func _ready() -> void:
+	get_tree().connect("network_peer_connected",self,"_network_peer_connected")
+	username_text_instance = Global.instance_node_at_location(username_text,Persistents, global_position)
+	username_text_instance.player_following = self
+
+func _process(delta) -> void:
+	if username_text_instance != null:
+		username_text_instance.name = "username" + name
 	if is_network_master():
+		camera.current = true
 		_get_input()
 		_apply_animation()
 		_normalize_animation_scale(delta)
@@ -33,6 +47,7 @@ func _process(delta):
 		if not tween.is_active():
 			move_and_slide(puppet_velocity)
 		_apply_animation_over_network()
+
 
 func _get_input() -> void:
 	velocity.x = 0
@@ -73,17 +88,28 @@ func _apply_animation_over_network() -> void:
 		sprite.flip_h=puppet_flip
 		sprite.scale=puppet_scale
 
-
-
+func _network_peer_connected(id) -> void:
+	rset_id(id,"puppet_username", username)
 sync func jump(multiplier) -> void:
 	sprite.scale = Vector2(0.75, 1.25)
 	velocity.y = jump_speed * multiplier
-	modulate = Color(5,5,5,1)
-	hit_timer.start()
+
 func set_hp(new_value) -> void:
 	hp = new_value
 	if is_network_master():
 		rset("puppet_hp",hp)
+
+func username_set(new_value) -> void:
+	username = new_value
+	if is_network_master() and username_text_instance != null:
+		username_text_instance.text = username
+		rset("puppet_username", username)
+
+func puppet_username_set(new_value) -> void:
+	puppet_username = new_value
+	if not is_network_master() and username_text_instance != null:
+		username_text_instance.text = puppet_username
+
 func puppet_hp_set(new_value) -> void:
 	puppet_hp = new_value
 	if not is_network_master():
@@ -116,8 +142,5 @@ func _on_HitBox_area_entered(area):
 
 
 
-
-func _on_HitTimer_timeout():
-	modulate = Color(1,1,1,1)
 
 

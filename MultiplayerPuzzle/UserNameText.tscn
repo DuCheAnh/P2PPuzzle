@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Font/basic_font.tres" type="DynamicFont" id=1]
+[ext_resource path="res://UserNameText.gd" type="Script" id=2]
+
+[node name="UserNameText" type="Node2D"]
+z_index = 5
+script = ExtResource( 2 )
+
+[node name="Label" type="Label" parent="."]
+margin_left = -200.0
+margin_top = -150.0
+margin_right = 200.0
+margin_bottom = -102.0
+rect_min_size = Vector2( 400, 0 )
+custom_fonts/font = ExtResource( 1 )
+text = "Null"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}

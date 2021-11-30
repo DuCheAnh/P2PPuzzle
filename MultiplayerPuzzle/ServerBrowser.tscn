@@ -131,6 +131,7 @@ margin_top = 98.0
 margin_right = 700.0
 margin_bottom = 198.0
 rect_min_size = Vector2( 700, 100 )
+custom_fonts/font = ExtResource( 1 )
 
 [node name="JoinServerButton" type="Button" parent="BackgroundPanel/ManualVBox"]
 margin_top = 248.0
