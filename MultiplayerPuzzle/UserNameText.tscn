@@ -3,7 +3,7 @@
 [ext_resource path="res://Font/basic_font.tres" type="DynamicFont" id=1]
 [ext_resource path="res://UserNameText.gd" type="Script" id=2]
 
-[node name="UserNameText" type="Node2D"]
+[node name="UserNameText" type="Node2D" groups=["Net"]]
 z_index = 5
 script = ExtResource( 2 )
 

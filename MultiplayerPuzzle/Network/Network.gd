@@ -23,6 +23,11 @@ func _ready() -> void:
 
 	get_tree().connect("connected_to_server",self,"_connected_to_server")
 	get_tree().connect("server_disconnected",self,"_server_disconnected")
+	get_tree().connect("connection_failed",self,"_connection_failed")
+
+func reset_network_connection() -> void:
+	if get_tree().has_network_peer():
+		get_tree().network_peer = null
 
 func create_server() -> void:
 	server = NetworkedMultiplayerENet.new()
@@ -35,9 +40,28 @@ func join_server() -> void:
 	client.create_client(ip_address,DEFAULT_PORT)
 	get_tree().set_network_peer(client)
 
+func _connection_failed() -> void:
+	for child in Persistents.get_children():
+		if child.is_in_group("Net"):
+			child.queue_free()
+
+	reset_network_connection()
+
+	if Global.ui != null:
+		var prompt = Global.instance_node(load("res://SimplePrompt.tscn"), Global.ui)
+		prompt.set_text("Failed to connect server")
 
 func _connected_to_server() -> void:
 	print("connected to server")
 
 func _server_disconnected() -> void:
 	print("disconnected from server")
+
+	for child in Persistents.get_children():
+		if child.is_in_group("Net"):
+			child.queue_free()
+
+	reset_network_connection()
+	if Global.ui != null:
+		var prompt = Global.instance_node(load("res://SimplePrompt.tscn"), Global.ui)
+		prompt.set_text("Disconnected from server")

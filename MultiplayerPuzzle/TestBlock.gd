@@ -1,11 +1,12 @@
 extends Area2D
 
-var multiplier = 1
+export (float) var multiplier = 1
 
 func _on_TestBlock_body_entered(body):
 	if body.is_in_group("Player"):
 		$Sprite.play("pressed")
 		$Sprite.scale = Vector2(1.25, 1)
+
 
 
 

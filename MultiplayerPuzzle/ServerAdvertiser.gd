@@ -12,10 +12,10 @@ func _enter_tree():
 	broadcast_timer.wait_time = broadcast_interval
 	broadcast_timer.one_shot = false
 	broadcast_timer.autostart = true
-
-	if get_tree().is_network_server():
-		add_child(broadcast_timer)
-		broadcast_timer.connect("timeout",self,"broadcast")
+	if get_tree().has_network_peer():
+		if get_tree().is_network_server():
+			add_child(broadcast_timer)
+			broadcast_timer.connect("timeout",self,"broadcast")
 
 	socket_udp = PacketPeerUDP.new()
 	socket_udp.set_broadcast_enabled(true)

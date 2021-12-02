@@ -8,15 +8,15 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 2 ) ],
-"loop": true,
-"name": "idle",
-"speed": 0.0
-}, {
 "frames": [ ExtResource( 1 ), ExtResource( 3 ) ],
 "loop": true,
 "name": "walk",
 "speed": 10.0
+}, {
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "idle",
+"speed": 0.0
 }, {
 "frames": [ ExtResource( 4 ) ],
 "loop": true,
@@ -28,7 +28,7 @@ animations = [ {
 radius = 40.0
 height = 64.0
 
-[node name="Player" type="KinematicBody2D" groups=["Player"]]
+[node name="Player" type="KinematicBody2D" groups=["Net", "Player"]]
 script = ExtResource( 5 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]

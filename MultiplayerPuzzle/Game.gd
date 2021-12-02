@@ -3,6 +3,21 @@ extends Node2D
 func _ready() -> void:
 	get_tree().connect("network_peer_disconnected",self,"_player_disconnected")
 
+func _process(delta) -> void:
+	if get_tree().has_network_peer():
+		if get_tree().is_network_server():
+			if Global.someone_is_dead:
+				rpc("reset_map")
+#need more work
+sync func reset_map() -> void:
+	get_tree().reload_current_scene()
+	Global.someone_is_dead = false
+	var pos = 128
+	for child in Persistents.get_children():
+		if child.is_in_group("Player"):
+			pos += 256
+			child.rpc("update_player_position",Vector2(pos,256))
+
 func _player_disconnected(id) -> void:
 	print("player " + str(id) + " disconnected")
 	if Persistents.has_node(str(id)):

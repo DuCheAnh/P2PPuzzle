@@ -22,10 +22,10 @@ onready var camera = $Camera2D
 var hp = 10 setget set_hp
 var velocity = Vector2.ZERO
 var was_on_floor = false
-var gravity_disabled  = true
 var username setget username_set
 var username_text_instance = null
 
+# PRIVATES
 func _ready() -> void:
 	get_tree().connect("network_peer_connected",self,"_network_peer_connected")
 	username_text_instance = Global.instance_node_at_location(username_text,Persistents, global_position)
@@ -34,20 +34,19 @@ func _ready() -> void:
 func _process(delta) -> void:
 	if username_text_instance != null:
 		username_text_instance.name = "username" + name
-	if is_network_master():
-		camera.current = true
-		_get_input()
-		_apply_animation()
-		_normalize_animation_scale(delta)
-		was_on_floor=is_on_floor()
-		if not gravity_disabled:
+	if get_tree().has_network_peer():
+		if is_network_master():
+			camera.current = true
+			_get_input()
+			_apply_animation()
+			_normalize_animation_scale(delta)
+			was_on_floor=is_on_floor()
 			velocity.y += gravity * delta
-		velocity = move_and_slide(velocity, Vector2.UP)
-	else:
-		if not tween.is_active():
-			move_and_slide(puppet_velocity)
-		_apply_animation_over_network()
-
+			velocity = move_and_slide(velocity, Vector2.UP)
+		else:
+			if not tween.is_active():
+				move_and_slide(puppet_velocity)
+			_apply_animation_over_network()
 
 func _get_input() -> void:
 	velocity.x = 0
@@ -58,8 +57,6 @@ func _get_input() -> void:
 	if Input.is_action_just_pressed("ui_accept"):
 		if is_on_floor():
 			jump(1)
-	if Input.is_action_just_pressed("ui_focus_next"):
-		player_gravity_set(true)
 
 func _apply_animation() -> void:
 	#flip animations
@@ -90,33 +87,39 @@ func _apply_animation_over_network() -> void:
 
 func _network_peer_connected(id) -> void:
 	rset_id(id,"puppet_username", username)
+
+#PUBLICS
 sync func jump(multiplier) -> void:
 	sprite.scale = Vector2(0.75, 1.25)
 	velocity.y = jump_speed * multiplier
 
+sync func update_player_position(new_position) -> void:
+	global_position = new_position
+	puppet_position = new_position
+
 func set_hp(new_value) -> void:
 	hp = new_value
-	if is_network_master():
-		rset("puppet_hp",hp)
+	if get_tree().has_network_peer():
+		if is_network_master():
+			rset("puppet_hp",hp)
 
 func username_set(new_value) -> void:
 	username = new_value
-	if is_network_master() and username_text_instance != null:
-		username_text_instance.text = username
-		rset("puppet_username", username)
+	if get_tree().has_network_peer():
+		if is_network_master() and username_text_instance != null:
+			username_text_instance.text = username
+			rset("puppet_username", username)
 
 func puppet_username_set(new_value) -> void:
 	puppet_username = new_value
-	if not is_network_master() and username_text_instance != null:
-		username_text_instance.text = puppet_username
+	if get_tree().has_network_peer():
+		if not is_network_master() and username_text_instance != null:
+			username_text_instance.text = puppet_username
 
 func puppet_hp_set(new_value) -> void:
 	puppet_hp = new_value
 	if not is_network_master():
 		hp = puppet_hp
-
-func player_gravity_set(value : float) -> void:
-	gravity_disabled = !value
 
 func puppet_position_set(new_value) -> void:
 	puppet_position=new_value
@@ -125,20 +128,26 @@ func puppet_position_set(new_value) -> void:
 	pass
 
 
-
+#SIGNALS
 func _on_Network_tick_rate_timeout():
-	if is_network_master():
-		rset_unreliable("puppet_position",global_position)
-		rset_unreliable("puppet_velocity",velocity)
-		rset_unreliable("puppet_sprite",sprite.animation)
-		rset_unreliable("puppet_flip",sprite.flip_h)
-		rset_unreliable("puppet_scale",sprite.scale)
-
+	if get_tree().has_network_peer():
+		if is_network_master():
+			rset_unreliable("puppet_position",global_position)
+			rset_unreliable("puppet_velocity",velocity)
+			rset_unreliable("puppet_sprite",sprite.animation)
+			rset_unreliable("puppet_flip",sprite.flip_h)
+			rset_unreliable("puppet_scale",sprite.scale)
 
 func _on_HitBox_area_entered(area):
-	if get_tree().is_network_server():
-		if area.is_in_group("Player_jump_booster"):
-			rpc("jump",area.multiplier)
+	if get_tree().has_network_peer():
+		if get_tree().is_network_server():
+			if area.is_in_group("Player_jump_booster"):
+				rpc("jump",area.multiplier)
+			if area.is_in_group("Player_damager"):
+				rpc("player_is_dead")
+
+sync func player_is_dead() -> void:
+	Global.someone_is_dead = true
 
 
 
