@@ -24,7 +24,7 @@ var velocity = Vector2.ZERO
 var was_on_floor = false
 var username setget username_set
 var username_text_instance = null
-
+var pushing_force = 10
 # PRIVATES
 func _ready() -> void:
 	get_tree().connect("network_peer_connected",self,"_network_peer_connected")
@@ -42,7 +42,11 @@ func _process(delta) -> void:
 			_normalize_animation_scale(delta)
 			was_on_floor=is_on_floor()
 			velocity.y += gravity * delta
-			velocity = move_and_slide(velocity, Vector2.UP)
+			velocity = move_and_slide(velocity, Vector2.UP, false, 4, PI/4, false)
+			for index in get_slide_count():
+				var collision = get_slide_collision(index)
+				if collision.collider.is_in_group("Pushable"):
+					collision.collider.apply_central_impulse(-collision.normal * pushing_force)
 		else:
 			if not tween.is_active():
 				move_and_slide(puppet_velocity)
@@ -118,8 +122,9 @@ func puppet_username_set(new_value) -> void:
 
 func puppet_hp_set(new_value) -> void:
 	puppet_hp = new_value
-	if not is_network_master():
-		hp = puppet_hp
+	if get_tree().has_network_peer():
+		if not is_network_master():
+			hp = puppet_hp
 
 func puppet_position_set(new_value) -> void:
 	puppet_position=new_value
