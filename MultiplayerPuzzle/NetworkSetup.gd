@@ -14,11 +14,11 @@ func _ready() -> void:
 	get_tree().connect("connected_to_server",self,"_connected_to_server")
 	tile_map.visible = false
 	device_ip_address.text = Network.ip_address
-
 	if get_tree().network_peer != null:
 		multiplayer_config_ui.hide()
 	else:
 		start_game_button.hide()
+
 func _process(delta) -> void:
 	if get_tree().network_peer != null:
 		if get_tree().get_network_connected_peers().size() >= 0 and get_tree().is_network_server():

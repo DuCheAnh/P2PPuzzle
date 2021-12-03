@@ -6,7 +6,7 @@ var server_info = {"name": "LAN Game"}
 
 var socket_udp
 var broadcast_timer = Timer.new()
-var broadcast_port = Network.DEFAULT_PORT
+var broadcast_port = Global.DEFAULT_PORT
 
 func _enter_tree():
 	broadcast_timer.wait_time = broadcast_interval

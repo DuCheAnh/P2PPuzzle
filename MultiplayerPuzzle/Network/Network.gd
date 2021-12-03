@@ -1,8 +1,5 @@
 extends Node
 
-const DEFAULT_PORT = 28960
-const MAX_CLIENT = 6
-
 var client = null
 var server = null
 
@@ -31,13 +28,13 @@ func reset_network_connection() -> void:
 
 func create_server() -> void:
 	server = NetworkedMultiplayerENet.new()
-	server.create_server(DEFAULT_PORT,MAX_CLIENT)
+	server.create_server(Global.DEFAULT_PORT,Global.MAX_CLIENT)
 	get_tree().set_network_peer(server)
 	Global.instance_node(load("res://ServerAdvertiser.tscn"),get_tree().current_scene)
 
 func join_server() -> void:
 	client = NetworkedMultiplayerENet.new()
-	client.create_client(ip_address,DEFAULT_PORT)
+	client.create_client(ip_address,Global.DEFAULT_PORT)
 	get_tree().set_network_peer(client)
 
 func _connection_failed() -> void:

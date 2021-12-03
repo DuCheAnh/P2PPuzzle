@@ -5,7 +5,7 @@ signal remove_server
 
 var clean_up_timer = Timer.new()
 var socket_udp = PacketPeerUDP.new()
-var listen_port = Network.DEFAULT_PORT
+var listen_port = Global.DEFAULT_PORT
 
 var known_servers = {}
 

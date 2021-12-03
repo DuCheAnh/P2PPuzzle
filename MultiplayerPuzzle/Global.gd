@@ -1,5 +1,8 @@
 extends Node
 
+const DEFAULT_PORT = 28960
+const MAX_CLIENT = 6
+
 var ui = null
 var someone_is_dead = false
 
