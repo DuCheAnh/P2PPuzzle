@@ -18,7 +18,7 @@ onready var sprite = $AnimatedSprite
 onready var tween = $Tween
 onready var hit_timer = $HitTimer
 onready var camera = $Camera2D
-
+onready var ray_cast = $RayCast2D
 var hp = 10 setget set_hp
 var velocity = Vector2.ZERO
 var was_on_floor = false
@@ -41,16 +41,15 @@ func _process(delta) -> void:
 			_apply_animation()
 			_normalize_animation_scale(delta)
 			was_on_floor=is_on_floor()
+			rpc_unreliable("push_on_collision")
 			velocity.y += gravity * delta
 			velocity = move_and_slide(velocity, Vector2.UP, false, 4, PI/4, false)
-			for index in get_slide_count():
-				var collision = get_slide_collision(index)
-				if collision.collider.is_in_group("Pushable"):
-					collision.collider.apply_central_impulse(-collision.normal * pushing_force)
+
 		else:
 			if not tween.is_active():
 				move_and_slide(puppet_velocity)
 			_apply_animation_over_network()
+
 
 func _get_input() -> void:
 	velocity.x = 0
@@ -61,7 +60,6 @@ func _get_input() -> void:
 	if Input.is_action_just_pressed("ui_accept"):
 		if is_on_floor():
 			jump(1)
-
 func _apply_animation() -> void:
 	#flip animations
 	if velocity.x!=0:
@@ -69,6 +67,11 @@ func _apply_animation() -> void:
 			sprite.flip_h=false
 		else:
 			sprite.flip_h=true
+	#flip ray cast
+	if sprite.flip_h:
+		ray_cast.cast_to.x = abs(ray_cast.cast_to.x)*-1
+	else:
+		ray_cast.cast_to.x = abs(ray_cast.cast_to.x)
 	#set animations
 	if is_on_floor():
 		if abs(velocity.x)>0:
@@ -93,6 +96,10 @@ func _network_peer_connected(id) -> void:
 	rset_id(id,"puppet_username", username)
 
 #PUBLICS
+sync func push_on_collision():
+	if ray_cast.is_colliding():
+		if ray_cast.get_collider().is_in_group("Crate"):
+			ray_cast.get_collider().push(Vector2(velocity.x,0))
 sync func jump(multiplier) -> void:
 	sprite.scale = Vector2(0.75, 1.25)
 	velocity.y = jump_speed * multiplier
@@ -128,9 +135,11 @@ func puppet_hp_set(new_value) -> void:
 
 func puppet_position_set(new_value) -> void:
 	puppet_position=new_value
-	tween.interpolate_property(self,"global_position",global_position,puppet_position,0.05)
-	tween.start()
-	pass
+	if get_tree().has_network_peer():
+		if not is_network_master():
+			tween.interpolate_property(self,"global_position",global_position,puppet_position,0.05)
+			tween.start()
+
 
 
 #SIGNALS

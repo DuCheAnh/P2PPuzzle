@@ -20,6 +20,10 @@ Network="*res://Network/Network.gd"
 Global="*res://Global.gd"
 Persistents="*res://Persistents.tscn"
 
+[debug]
+
+settings/fps/force_fps=60
+
 [display]
 
 window/size/width=1920
@@ -28,6 +32,10 @@ window/size/test_width=853
 window/size/test_height=480
 window/stretch/mode="2d"
 window/stretch/aspect="keep"
+
+[global]
+
+fps=false
 
 [physics]
 

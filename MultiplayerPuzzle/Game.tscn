@@ -5,7 +5,7 @@
 [ext_resource path="res://Game.gd" type="Script" id=3]
 [ext_resource path="res://UI.gd" type="Script" id=4]
 [ext_resource path="res://Spike.tscn" type="PackedScene" id=5]
-[ext_resource path="res://RigidCrate.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Crate.tscn" type="PackedScene" id=7]
 
 [sub_resource type="ConvexPolygonShape2D" id=1]
 points = PoolVector2Array( 0, 0, 128, 0, 128, 128, 0, 128 )
@@ -56,5 +56,5 @@ script = ExtResource( 4 )
 [node name="Spike" parent="." instance=ExtResource( 5 )]
 position = Vector2( 2128, 960 )
 
-[node name="RigidCrate" parent="." instance=ExtResource( 6 )]
-position = Vector2( 1024, 960 )
+[node name="Crate" parent="." instance=ExtResource( 7 )]
+position = Vector2( 816, 960 )

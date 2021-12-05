@@ -7,7 +7,7 @@
 extents = Vector2( 64, 64 )
 
 [node name="RigidCrate" type="RigidBody2D" groups=["Pushable"]]
-gravity_scale = 5.0
+gravity_scale = 2.0
 script = ExtResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="."]
