@@ -13,7 +13,7 @@ puppet var puppet_flip = false
 puppet var puppet_scale = Vector2(1,1)
 puppet var puppet_hp = 10 setget puppet_hp_set
 puppet var puppet_username = "" setget puppet_username_set
-
+puppet var puppet_cast_to = Vector2.ZERO
 onready var sprite = $AnimatedSprite
 onready var tween = $Tween
 onready var hit_timer = $HitTimer
@@ -40,14 +40,15 @@ func _process(delta) -> void:
 			_get_input()
 			_apply_animation()
 			_normalize_animation_scale(delta)
+			rset("puppet_cast_to", ray_cast.cast_to)
 			was_on_floor=is_on_floor()
-			rpc_unreliable("push_on_collision")
 			velocity.y += gravity * delta
 			velocity = move_and_slide(velocity, Vector2.UP, false, 4, PI/4, false)
-
+			rpc_unreliable("push_on_collision",velocity)
 		else:
 			if not tween.is_active():
 				move_and_slide(puppet_velocity)
+			rpc_unreliable("push_on_collision",puppet_velocity)
 			_apply_animation_over_network()
 
 
@@ -89,17 +90,18 @@ func _normalize_animation_scale(delta) -> void:
 
 func _apply_animation_over_network() -> void:
 		sprite.play(puppet_sprite)
-		sprite.flip_h=puppet_flip
-		sprite.scale=puppet_scale
+		sprite.flip_h = puppet_flip
+		sprite.scale = puppet_scale
+		ray_cast.cast_to = puppet_cast_to
 
 func _network_peer_connected(id) -> void:
 	rset_id(id,"puppet_username", username)
 
 #PUBLICS
-sync func push_on_collision():
+sync func push_on_collision(vel):
 	if ray_cast.is_colliding():
 		if ray_cast.get_collider().is_in_group("Crate"):
-			ray_cast.get_collider().push(Vector2(velocity.x,0))
+			ray_cast.get_collider().push(Vector2(vel.x,0))
 sync func jump(multiplier) -> void:
 	sprite.scale = Vector2(0.75, 1.25)
 	velocity.y = jump_speed * multiplier
