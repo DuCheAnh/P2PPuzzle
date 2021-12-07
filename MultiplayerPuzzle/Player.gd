@@ -43,12 +43,12 @@ func _process(delta) -> void:
 			rset("puppet_cast_to", ray_cast.cast_to)
 			was_on_floor=is_on_floor()
 			velocity.y += gravity * delta
-			velocity = move_and_slide(velocity, Vector2.UP, false, 4, PI/4, false)
 			rpc_unreliable("push_on_collision",velocity)
+			velocity = move_and_slide(velocity, Vector2.UP, false, 4, PI/4, false)
 		else:
+			rpc_unreliable("push_on_collision",puppet_velocity)
 			if not tween.is_active():
 				move_and_slide(puppet_velocity)
-			rpc_unreliable("push_on_collision",puppet_velocity)
 			_apply_animation_over_network()
 
 

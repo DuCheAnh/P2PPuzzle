@@ -12,11 +12,11 @@ func _process(delta) -> void:
 sync func reset_map() -> void:
 	get_tree().reload_current_scene()
 	Global.someone_is_dead = false
-	var pos = 128
+	var spawn_point = 128
 	for child in Persistents.get_children():
 		if child.is_in_group("Player"):
-			pos += 256
-			child.rpc("update_player_position",Vector2(pos,256))
+			spawn_point += 256
+			child.rpc("update_player_position",Vector2(spawn_point, 256))
 
 func _player_disconnected(id) -> void:
 	print("player " + str(id) + " disconnected")
