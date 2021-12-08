@@ -1,7 +1,14 @@
 extends Node2D
+export (float) var limit_right = 1000000
+export (float) var limit_bottom = 1000000
+export (float) var limit_left = 0
+export (float) var limit_top = 0
 
 func _ready() -> void:
 	get_tree().connect("network_peer_disconnected",self,"_player_disconnected")
+	if get_tree().has_network_peer():
+		if get_tree().is_network_server():
+			rpc("apply_camera_limit")
 
 func _process(delta) -> void:
 	if get_tree().has_network_peer():
@@ -17,6 +24,12 @@ sync func reset_map() -> void:
 		if child.is_in_group("Player"):
 			spawn_point += 256
 			child.rpc("update_player_position",Vector2(spawn_point, 256))
+
+
+sync func apply_camera_limit() -> void:
+	for object in Persistents.get_children():
+		if object.is_in_group("Player"):
+			object.set_cam_limit(limit_left, limit_top, limit_right, limit_bottom)
 
 func _player_disconnected(id) -> void:
 	print("player " + str(id) + " disconnected")

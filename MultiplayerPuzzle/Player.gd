@@ -31,6 +31,7 @@ func _ready() -> void:
 	username_text_instance = Global.instance_node_at_location(username_text,Persistents, global_position)
 	username_text_instance.player_following = self
 
+
 func _process(delta) -> void:
 	if username_text_instance != null:
 		username_text_instance.name = "username" + name
@@ -121,6 +122,7 @@ func username_set(new_value) -> void:
 	if get_tree().has_network_peer():
 		if is_network_master() and username_text_instance != null:
 			username_text_instance.text = username
+			username_text_instance.color = Color.green
 			rset("puppet_username", username)
 
 func puppet_username_set(new_value) -> void:
@@ -142,6 +144,11 @@ func puppet_position_set(new_value) -> void:
 			tween.interpolate_property(self,"global_position",global_position,puppet_position,0.05)
 			tween.start()
 
+func set_cam_limit(left, top, right, bottom) -> void:
+	camera.limit_left = left
+	camera.limit_top = top
+	camera.limit_right = right
+	camera.limit_bottom = bottom
 
 
 #SIGNALS
@@ -156,7 +163,7 @@ func _on_Network_tick_rate_timeout():
 
 func _on_HitBox_area_entered(area):
 	if get_tree().has_network_peer():
-		if get_tree().is_network_server():
+		if is_network_master():
 			if area.is_in_group("Player_jump_booster"):
 				rpc("jump",area.multiplier)
 			if area.is_in_group("Player_damager"):
