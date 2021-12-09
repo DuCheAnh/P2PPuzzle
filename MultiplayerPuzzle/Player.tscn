@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Asset/alienBlue_walk1.png" type="Texture" id=1]
 [ext_resource path="res://Asset/alienBlue_stand.png" type="Texture" id=2]
@@ -27,6 +27,9 @@ animations = [ {
 [sub_resource type="CapsuleShape2D" id=2]
 radius = 40.0
 height = 64.0
+
+[sub_resource type="Gradient" id=3]
+colors = PoolColorArray( 1, 0, 0, 1, 0.731445, 0, 0, 1 )
 
 [node name="Player" type="KinematicBody2D" groups=["Net", "Player"]]
 script = ExtResource( 5 )
@@ -61,6 +64,23 @@ smoothing_speed = 1.5
 [node name="RayCast2D" type="RayCast2D" parent="."]
 enabled = true
 cast_to = Vector2( 60, 0 )
+
+[node name="DeathParticles" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 15
+one_shot = true
+explosiveness = 1.0
+local_coords = false
+emission_shape = 1
+emission_sphere_radius = 10.0
+direction = Vector2( 0, 0 )
+spread = 180.0
+initial_velocity = 40.0
+angular_velocity = 360.0
+linear_accel = 20.0
+scale_amount = 5.0
+scale_amount_random = 0.3
+color_ramp = SubResource( 3 )
 
 [connection signal="timeout" from="Network_tick_rate" to="." method="_on_Network_tick_rate_timeout"]
 [connection signal="area_entered" from="HitBox" to="." method="_on_HitBox_area_entered"]

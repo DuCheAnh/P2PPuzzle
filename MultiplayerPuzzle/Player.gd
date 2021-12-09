@@ -14,17 +14,21 @@ puppet var puppet_scale = Vector2(1,1)
 puppet var puppet_hp = 10 setget puppet_hp_set
 puppet var puppet_username = "" setget puppet_username_set
 puppet var puppet_cast_to = Vector2.ZERO
+puppet var puppet_dead = false
+puppet var puppet_emitting = false
 onready var sprite = $AnimatedSprite
 onready var tween = $Tween
 onready var hit_timer = $HitTimer
 onready var camera = $Camera2D
 onready var ray_cast = $RayCast2D
+onready var particles = $DeathParticles
 var hp = 10 setget set_hp
 var velocity = Vector2.ZERO
 var was_on_floor = false
 var username setget username_set
 var username_text_instance = null
 var pushing_force = 10
+var dead = false
 # PRIVATES
 func _ready() -> void:
 	get_tree().connect("network_peer_connected",self,"_network_peer_connected")
@@ -38,7 +42,10 @@ func _process(delta) -> void:
 	if get_tree().has_network_peer():
 		if is_network_master():
 			camera.current = true
-			_get_input()
+			if not dead:
+				_get_input()
+			else:
+				velocity = Vector2.ZERO
 			_apply_animation()
 			_normalize_animation_scale(delta)
 			rset("puppet_cast_to", ray_cast.cast_to)
@@ -85,11 +92,18 @@ func _apply_animation() -> void:
 	#bounce when drop
 	if is_on_floor() and !was_on_floor:
 		sprite.scale = Vector2(1.1, 0.9)
+	if dead:
+		sprite.visible= false
+		particles.emitting = true
+	else:
+		sprite.visible = true
 
 func _normalize_animation_scale(delta) -> void:
 	sprite.scale = sprite.scale.linear_interpolate(Vector2(1, 1), delta * 12)
 
 func _apply_animation_over_network() -> void:
+		sprite.visible = !puppet_dead
+		particles.emitting = puppet_emitting
 		sprite.play(puppet_sprite)
 		sprite.flip_h = puppet_flip
 		sprite.scale = puppet_scale
@@ -160,6 +174,8 @@ func _on_Network_tick_rate_timeout():
 			rset_unreliable("puppet_sprite",sprite.animation)
 			rset_unreliable("puppet_flip",sprite.flip_h)
 			rset_unreliable("puppet_scale",sprite.scale)
+			rset_unreliable("puppet_dead",dead)
+			rset_unreliable("puppet_emitting",particles.emitting)
 
 func _on_HitBox_area_entered(area):
 	if get_tree().has_network_peer():
@@ -167,6 +183,8 @@ func _on_HitBox_area_entered(area):
 			if area.is_in_group("Player_jump_booster"):
 				rpc("jump",area.multiplier)
 			if area.is_in_group("Player_damager"):
+				dead = true
+				yield(get_tree().create_timer(1),"timeout")
 				rpc("player_is_dead")
 
 sync func player_is_dead() -> void:

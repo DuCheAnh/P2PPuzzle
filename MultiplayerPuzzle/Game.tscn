@@ -355,6 +355,9 @@ centered = false
 [node name="Spike" parent="SpikeGroup1" instance=ExtResource( 5 )]
 position = Vector2( 4800, 964 )
 
+[node name="Spike2" parent="SpikeGroup1" instance=ExtResource( 5 )]
+position = Vector2( 1940, 832 )
+
 [node name="SprikeGroup2" type="Node" parent="."]
 
 [node name="Spike2" parent="SprikeGroup2" instance=ExtResource( 5 )]

@@ -22,6 +22,7 @@ sync func reset_map() -> void:
 	var spawn_point = 128
 	for child in Persistents.get_children():
 		if child.is_in_group("Player"):
+			child.dead = false
 			spawn_point += 256
 			child.rpc("update_player_position",Vector2(spawn_point, 256))
 
