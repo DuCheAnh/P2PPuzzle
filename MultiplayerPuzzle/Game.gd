@@ -3,7 +3,7 @@ export (float) var limit_right = 1000000
 export (float) var limit_bottom = 1000000
 export (float) var limit_left = 0
 export (float) var limit_top = 0
-
+var current_player = null
 func _ready() -> void:
 	get_tree().connect("network_peer_disconnected",self,"_player_disconnected")
 	if get_tree().has_network_peer():
@@ -37,4 +37,6 @@ func _player_disconnected(id) -> void:
 	if Persistents.has_node(str(id)):
 		Persistents.get_node(str(id)).username_text_instance.queue_free()
 		Persistents.get_node(str(id)).queue_free()
+
+
 

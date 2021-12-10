@@ -16,12 +16,15 @@ puppet var puppet_username = "" setget puppet_username_set
 puppet var puppet_cast_to = Vector2.ZERO
 puppet var puppet_dead = false
 puppet var puppet_emitting = false
+
 onready var sprite = $AnimatedSprite
 onready var tween = $Tween
 onready var hit_timer = $HitTimer
 onready var camera = $Camera2D
 onready var ray_cast = $RayCast2D
 onready var particles = $DeathParticles
+onready var control_button = $ControlUI/Buttons
+
 var hp = 10 setget set_hp
 var velocity = Vector2.ZERO
 var was_on_floor = false
@@ -29,11 +32,16 @@ var username setget username_set
 var username_text_instance = null
 var pushing_force = 10
 var dead = false
+
+var _moving_direction = 0 # left<0<right
+var _jump_touch_pressed = false
 # PRIVATES
 func _ready() -> void:
 	get_tree().connect("network_peer_connected",self,"_network_peer_connected")
 	username_text_instance = Global.instance_node_at_location(username_text,Persistents, global_position)
 	username_text_instance.player_following = self
+	if OS.get_name() != "Windows":
+		control_button.visible = true
 
 
 func _process(delta) -> void:
@@ -62,9 +70,9 @@ func _process(delta) -> void:
 
 func _get_input() -> void:
 	velocity.x = 0
-	if Input.is_action_pressed("ui_right"):
+	if Input.is_action_pressed("ui_right") or _moving_direction>0:
 		velocity.x += speed
-	if Input.is_action_pressed("ui_left"):
+	if Input.is_action_pressed("ui_left") or _moving_direction<0:
 		velocity.x -= speed
 	if Input.is_action_just_pressed("ui_accept"):
 		if is_on_floor():
@@ -190,7 +198,32 @@ func _on_HitBox_area_entered(area):
 sync func player_is_dead() -> void:
 	Global.someone_is_dead = true
 
+func _on_MoveRightButton_button_up():
+	_moving_direction = 0
 
 
+func _on_MoveLeftTouchButton_pressed():
+	_moving_direction = -1
 
 
+func _on_MoveLeftTouchButton_released():
+	_moving_direction = 0
+
+
+func _on_MoveRightTouchButton_pressed():
+	_moving_direction = 1
+
+
+func _on_MoveRightTouchButton_released():
+	_moving_direction = 0
+
+
+func _on_JumpTouchButton_pressed():
+	if not _jump_touch_pressed:
+		_jump_touch_pressed = true
+		if is_on_floor():
+			jump(1)
+
+
+func _on_JumpTouchButton_released():
+	_jump_touch_pressed = false

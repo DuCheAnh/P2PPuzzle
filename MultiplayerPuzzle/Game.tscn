@@ -332,9 +332,6 @@ multiplier = 1.2
 position = Vector2( 7616, 708 )
 multiplier = 1.2
 
-[node name="UI" type="CanvasLayer" parent="."]
-script = ExtResource( 4 )
-
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 offset = Vector2( 0, -420 )
 transform = Transform2D( 1, 0, 0, 1, 0, -420 )
@@ -394,3 +391,6 @@ position = Vector2( 7232, 1092 )
 
 [node name="Spike9" parent="SprikeGroup3" instance=ExtResource( 5 )]
 position = Vector2( 7360, 1092 )
+
+[node name="UI" type="CanvasLayer" parent="."]
+script = ExtResource( 4 )
