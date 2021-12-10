@@ -9,15 +9,17 @@ func _ready() -> void:
 	if get_tree().has_network_peer():
 		if get_tree().is_network_server():
 			rpc("apply_camera_limit")
+			rpc("reset_map", false)
 
 func _process(delta) -> void:
 	if get_tree().has_network_peer():
 		if get_tree().is_network_server():
 			if Global.someone_is_dead:
-				rpc("reset_map")
+				rpc("reset_map", true)
 #need more work
-sync func reset_map() -> void:
-	get_tree().reload_current_scene()
+sync func reset_map(reload_map : bool) -> void:
+	if reload_map:
+		get_tree().reload_current_scene()
 	Global.someone_is_dead = false
 	var spawn_point = 128
 	for child in Persistents.get_children():
