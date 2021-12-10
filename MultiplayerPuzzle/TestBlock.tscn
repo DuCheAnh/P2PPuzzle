@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://Asset/switchBlue.png" type="Texture" id=1]
+[ext_resource path="res://Asset/sprung.png" type="Texture" id=1]
 [ext_resource path="res://TestBlock.gd" type="Script" id=2]
-[ext_resource path="res://Asset/switchBlue_pressed.png" type="Texture" id=3]
+[ext_resource path="res://Asset/spring.png" type="Texture" id=3]
 
 [sub_resource type="SpriteFrames" id=2]
 animations = [ {
@@ -31,7 +31,7 @@ animation = "unpressed"
 position = Vector2( 0, 16 )
 shape = SubResource( 1 )
 
-[node name="Timer" type="Timer" parent="."]
+[node name="Tween" type="Tween" parent="."]
 
 [connection signal="body_entered" from="." to="." method="_on_TestBlock_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_TestBlock_body_exited"]

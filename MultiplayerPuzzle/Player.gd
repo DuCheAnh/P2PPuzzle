@@ -11,7 +11,6 @@ puppet var puppet_velocity = Vector2()
 puppet var puppet_sprite = ""
 puppet var puppet_flip = false
 puppet var puppet_scale = Vector2(1,1)
-puppet var puppet_hp = 10 setget puppet_hp_set
 puppet var puppet_username = "" setget puppet_username_set
 puppet var puppet_cast_to = Vector2.ZERO
 puppet var puppet_dead = false
@@ -19,13 +18,11 @@ puppet var puppet_emitting = false
 
 onready var sprite = $AnimatedSprite
 onready var tween = $Tween
-onready var hit_timer = $HitTimer
 onready var camera = $Camera2D
 onready var ray_cast = $RayCast2D
 onready var particles = $DeathParticles
 onready var control_button = $ControlUI/Buttons
 
-var hp = 10 setget set_hp
 var velocity = Vector2.ZERO
 var was_on_floor = false
 var username setget username_set
@@ -35,6 +32,7 @@ var dead = false
 
 var _moving_direction = 0 # left<0<right
 var _jump_touch_pressed = false
+
 # PRIVATES
 func _ready() -> void:
 	get_tree().connect("network_peer_connected",self,"_network_peer_connected")
@@ -42,7 +40,6 @@ func _ready() -> void:
 	username_text_instance.player_following = self
 	if OS.get_name() != "Windows":
 		control_button.visible = true
-
 
 func _process(delta) -> void:
 	if username_text_instance != null:
@@ -60,13 +57,12 @@ func _process(delta) -> void:
 			was_on_floor=is_on_floor()
 			velocity.y += gravity * delta
 			rpc_unreliable("push_on_collision",velocity)
-			velocity = move_and_slide(velocity, Vector2.UP, false, 4, PI/4, false)
+			velocity = move_and_slide(velocity, Vector2.UP)
 		else:
 			rpc_unreliable("push_on_collision",puppet_velocity)
 			if not tween.is_active():
 				move_and_slide(puppet_velocity)
 			_apply_animation_over_network()
-
 
 func _get_input() -> void:
 	velocity.x = 0
@@ -105,10 +101,8 @@ func _apply_animation() -> void:
 		particles.emitting = true
 	else:
 		sprite.visible = true
-
 func _normalize_animation_scale(delta) -> void:
 	sprite.scale = sprite.scale.linear_interpolate(Vector2(1, 1), delta * 12)
-
 func _apply_animation_over_network() -> void:
 		sprite.visible = !puppet_dead
 		particles.emitting = puppet_emitting
@@ -116,11 +110,12 @@ func _apply_animation_over_network() -> void:
 		sprite.flip_h = puppet_flip
 		sprite.scale = puppet_scale
 		ray_cast.cast_to = puppet_cast_to
-
 func _network_peer_connected(id) -> void:
 	rset_id(id,"puppet_username", username)
 
 #PUBLICS
+sync func player_is_dead() -> void:
+	Global.someone_is_dead = true
 sync func push_on_collision(vel):
 	if ray_cast.is_colliding():
 		if ray_cast.get_collider().is_in_group("Crate"):
@@ -128,17 +123,9 @@ sync func push_on_collision(vel):
 sync func jump(multiplier) -> void:
 	sprite.scale = Vector2(0.75, 1.25)
 	velocity.y = jump_speed * multiplier
-
 sync func update_player_position(new_position) -> void:
 	global_position = new_position
 	puppet_position = new_position
-
-func set_hp(new_value) -> void:
-	hp = new_value
-	if get_tree().has_network_peer():
-		if is_network_master():
-			rset("puppet_hp",hp)
-
 func username_set(new_value) -> void:
 	username = new_value
 	if get_tree().has_network_peer():
@@ -146,32 +133,26 @@ func username_set(new_value) -> void:
 			username_text_instance.text = username
 			username_text_instance.color = Color.green
 			rset("puppet_username", username)
-
 func puppet_username_set(new_value) -> void:
 	puppet_username = new_value
 	if get_tree().has_network_peer():
 		if not is_network_master() and username_text_instance != null:
 			username_text_instance.text = puppet_username
-
-func puppet_hp_set(new_value) -> void:
-	puppet_hp = new_value
-	if get_tree().has_network_peer():
-		if not is_network_master():
-			hp = puppet_hp
-
 func puppet_position_set(new_value) -> void:
 	puppet_position=new_value
 	if get_tree().has_network_peer():
 		if not is_network_master():
 			tween.interpolate_property(self,"global_position",global_position,puppet_position,0.05)
 			tween.start()
-
 func set_cam_limit(left, top, right, bottom) -> void:
 	camera.limit_left = left
 	camera.limit_top = top
 	camera.limit_right = right
 	camera.limit_bottom = bottom
-
+func emit_death() -> void:
+	dead = true
+	yield(get_tree().create_timer(1),"timeout")
+	rpc("player_is_dead")
 
 #SIGNALS
 func _on_Network_tick_rate_timeout():
@@ -184,46 +165,28 @@ func _on_Network_tick_rate_timeout():
 			rset_unreliable("puppet_scale",sprite.scale)
 			rset_unreliable("puppet_dead",dead)
 			rset_unreliable("puppet_emitting",particles.emitting)
-
 func _on_HitBox_area_entered(area):
 	if get_tree().has_network_peer():
 		if is_network_master():
 			if area.is_in_group("Player_jump_booster"):
 				rpc("jump",area.multiplier)
 			if area.is_in_group("Player_damager"):
-				dead = true
-				yield(get_tree().create_timer(1),"timeout")
-				rpc("player_is_dead")
-
-sync func player_is_dead() -> void:
-	Global.someone_is_dead = true
-
+				emit_death()
 func _on_MoveRightButton_button_up():
 	_moving_direction = 0
-
-
 func _on_MoveLeftTouchButton_pressed():
 	_moving_direction = -1
-
-
 func _on_MoveLeftTouchButton_released():
 	_moving_direction = 0
-
-
 func _on_MoveRightTouchButton_pressed():
 	_moving_direction = 1
-
-
 func _on_MoveRightTouchButton_released():
 	_moving_direction = 0
-
-
 func _on_JumpTouchButton_pressed():
 	if not _jump_touch_pressed:
 		_jump_touch_pressed = true
 		if is_on_floor():
 			jump(1)
-
-
 func _on_JumpTouchButton_released():
 	_jump_touch_pressed = false
+
