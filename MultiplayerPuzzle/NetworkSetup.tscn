@@ -84,15 +84,15 @@ __meta__ = {
 
 [node name="UsernameTextEdit" type="LineEdit" parent="MultiplayerConfig/VBoxContainer"]
 margin_right = 500.0
-margin_bottom = 58.0
+margin_bottom = 51.0
 custom_fonts/font = ExtResource( 1 )
 align = 1
-placeholder_text = "Enter Username"
+placeholder_text = "Username"
 
 [node name="CreateServerButton" type="Button" parent="MultiplayerConfig/VBoxContainer"]
-margin_top = 98.0
+margin_top = 91.0
 margin_right = 500.0
-margin_bottom = 152.0
+margin_bottom = 138.0
 rect_min_size = Vector2( 500, 0 )
 custom_fonts/font = ExtResource( 1 )
 text = "Create Server"
@@ -101,9 +101,9 @@ __meta__ = {
 }
 
 [node name="JoinServerButton" type="Button" parent="MultiplayerConfig/VBoxContainer"]
-margin_top = 192.0
+margin_top = 178.0
 margin_right = 500.0
-margin_bottom = 246.0
+margin_bottom = 225.0
 custom_fonts/font = ExtResource( 1 )
 text = " Join Server"
 __meta__ = {
@@ -132,7 +132,7 @@ margin_right = 1865.85
 margin_bottom = 201.49
 rect_min_size = Vector2( 300, 150 )
 custom_fonts/font = ExtResource( 1 )
-text = "Start"
+text = "START"
 __meta__ = {
 "_edit_use_anchors_": false
 }
