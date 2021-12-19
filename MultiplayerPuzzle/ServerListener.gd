@@ -21,10 +21,10 @@ func _init():
 func _ready():
 	known_servers.clear()
 	if socket_udp.listen(listen_port) != OK:
-		print("GameServer LAN service: Error listening on port " + str(listen_port))
+		Global.display_notification("GameServer LAN service: Error listening on port " + str(listen_port))
 	else:
-		print("GameServer LAN service: Listening on port " + str(listen_port))
-
+#		Global.display_notification("GameServer LAN service: Listening on port " + str(listen_port))
+		pass
 func _process(delta):
 	if socket_udp.get_available_packet_count() > 0:
 		var server_ip = socket_udp.get_packet_ip()

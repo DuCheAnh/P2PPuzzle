@@ -82,6 +82,21 @@ func dis() -> void:
 			Network.client.close_connection()
 		init_prompt()
 
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		if event.scancode == KEY_LEFT:
+			pass
+		elif event.scancode == KEY_RIGHT:
+			pass
+		elif event.scancode == KEY_UP:
+			pass
+		elif event.scancode == KEY_DOWN:
+			pass
+		elif event.scancode == KEY_SPACE:
+			pass
+		else:
+			Global.display_keyboard_notification("Use arrow keys and spacebar to control player")
+
 
 func _get_input() -> void:
 	velocity.x = 0
@@ -93,7 +108,6 @@ func _get_input() -> void:
 		if is_on_floor():
 			jump(1)
 	if Input.is_action_just_pressed("ui_focus_next"):
-		print("hi")
 		dis()
 
 func _apply_animation() -> void:

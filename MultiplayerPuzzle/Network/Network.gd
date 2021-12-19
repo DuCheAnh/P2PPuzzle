@@ -49,11 +49,9 @@ func _connection_failed() -> void:
 		prompt.set_text("Failed to connect server")
 
 func _connected_to_server() -> void:
-	print("connected to server")
+	Global.display_notification("Connected to server")
 
 func _server_disconnected() -> void:
-	print("disconnected from server")
-
 	for child in Persistents.get_children():
 		if child.is_in_group("Net"):
 			child.queue_free()

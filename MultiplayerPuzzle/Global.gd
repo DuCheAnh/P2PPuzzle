@@ -16,3 +16,11 @@ func instance_node_at_location(node: Object, parent: Object, location: Vector2) 
 	node_instance.global_position=location
 	return node_instance
 
+func display_notification(message) -> void:
+	var prompt = Global.instance_node(load("res://MessageLabel.tscn"), Global.ui)
+	prompt.set_message(message)
+
+func display_keyboard_notification(message) -> void:
+	var prompt = Global.instance_node(load("res://MessageLabel.tscn"), Global.ui)
+	prompt.rect_position = Vector2(100,1000)
+	prompt.set_message(message)

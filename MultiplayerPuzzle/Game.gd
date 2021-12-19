@@ -37,7 +37,7 @@ sync func apply_camera_limit() -> void:
 			object.set_cam_limit(limit_left, limit_top, limit_right, limit_bottom)
 
 func _player_disconnected(id) -> void:
-	print("player " + str(id) + " disconnected")
+	Global.display_notification("Player " + str(id) + " disconnected")
 	if Persistents.has_node(str(id)):
 		Persistents.get_node(str(id)).username_text_instance.queue_free()
 		Persistents.get_node(str(id)).queue_free()

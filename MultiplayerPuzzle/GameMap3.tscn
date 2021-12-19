@@ -341,6 +341,7 @@ points = PoolVector2Array( 128, 72, 0, 72, 0, 0, 128, 0 )
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource( 10 )
+limit_bottom = 1280.0
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2( 1, 0 )

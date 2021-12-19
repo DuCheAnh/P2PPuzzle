@@ -37,15 +37,18 @@ func instance_player(id) -> void:
 	player_instance.username = username_text_edit.text
 
 
+
 func _player_connected(id) -> void:
-	print("Player " + str(id) + " connected")
+	if is_network_master():
+		Global.display_notification("Player " + str(id) + " connected")
 	if get_tree().has_network_peer():
 		if get_tree().is_network_server():
 			rpc("show_tile_map")
 	instance_player(id)
 
 func _player_disconnected(id) -> void:
-	print("Player " + str(id) + " disconnected")
+	if is_network_master():
+		Global.display_notification("Player " + str(id) + " disconnected")
 	if Persistents.has_node(str(id)):
 		Persistents.get_node(str(id)).username_text_instance.queue_free()
 		Persistents.get_node(str(id)).queue_free()
