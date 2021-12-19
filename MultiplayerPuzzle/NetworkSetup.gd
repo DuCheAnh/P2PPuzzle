@@ -26,6 +26,7 @@ func _process(delta) -> void:
 		else:
 			start_game_button.hide()
 
+
 puppet func show_tile_map():
 	tile_map.visible = true
 
@@ -34,6 +35,7 @@ func instance_player(id) -> void:
 	player_instance.name=str(id)
 	player_instance.set_network_master(id)
 	player_instance.username = username_text_edit.text
+
 
 func _player_connected(id) -> void:
 	print("Player " + str(id) + " connected")

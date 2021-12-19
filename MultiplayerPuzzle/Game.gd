@@ -3,7 +3,9 @@ export (float) var limit_right = 1000000
 export (float) var limit_bottom = 1000000
 export (float) var limit_left = 0
 export (float) var limit_top = 0
+
 var current_player = null
+
 func _ready() -> void:
 	get_tree().connect("network_peer_disconnected",self,"_player_disconnected")
 	if get_tree().has_network_peer():

@@ -434,7 +434,7 @@ position = Vector2( 7232, 1092 )
 position = Vector2( 7360, 1092 )
 
 [node name="Portal" parent="." instance=ExtResource( 9 )]
-position = Vector2( 8228.6, 192.591 )
+position = Vector2( 272, 952 )
 scene = "res://GameMap3.tscn"
 
 [node name="Crate" parent="." instance=ExtResource( 10 )]

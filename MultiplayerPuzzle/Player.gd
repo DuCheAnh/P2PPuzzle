@@ -23,6 +23,7 @@ onready var ray_cast = $RayCast2D
 onready var particles = $DeathParticles
 onready var control_button = $ControlUI/Buttons
 
+
 var velocity = Vector2.ZERO
 var was_on_floor = false
 var username setget username_set
@@ -64,6 +65,24 @@ func _process(delta) -> void:
 				move_and_slide(puppet_velocity)
 			_apply_animation_over_network()
 
+func init_prompt() -> void:
+	for child in Persistents.get_children():
+		if child.is_in_group("Net"):
+			child.queue_free()
+	Network.reset_network_connection()
+	if Global.ui != null:
+		var prompt = Global.instance_node(load("res://SimplePrompt.tscn"), Global.ui)
+		prompt.set_text("Disconnected from server")
+
+func dis() -> void:
+	if get_tree().has_network_peer():
+		if get_tree().is_network_server():
+			Network.server.close_connection()
+		elif is_network_master():
+			Network.client.close_connection()
+		init_prompt()
+
+
 func _get_input() -> void:
 	velocity.x = 0
 	if Input.is_action_pressed("ui_right") or _moving_direction>0:
@@ -73,6 +92,10 @@ func _get_input() -> void:
 	if Input.is_action_just_pressed("ui_accept"):
 		if is_on_floor():
 			jump(1)
+	if Input.is_action_just_pressed("ui_focus_next"):
+		print("hi")
+		dis()
+
 func _apply_animation() -> void:
 	#flip animations
 	if velocity.x!=0:
@@ -101,8 +124,10 @@ func _apply_animation() -> void:
 		particles.emitting = true
 	else:
 		sprite.visible = true
+
 func _normalize_animation_scale(delta) -> void:
 	sprite.scale = sprite.scale.linear_interpolate(Vector2(1, 1), delta * 12)
+
 func _apply_animation_over_network() -> void:
 		sprite.visible = !puppet_dead
 		particles.emitting = puppet_emitting
@@ -110,22 +135,28 @@ func _apply_animation_over_network() -> void:
 		sprite.flip_h = puppet_flip
 		sprite.scale = puppet_scale
 		ray_cast.cast_to = puppet_cast_to
+
 func _network_peer_connected(id) -> void:
 	rset_id(id,"puppet_username", username)
 
 #PUBLICS
 sync func player_is_dead() -> void:
 	Global.someone_is_dead = true
+
 sync func push_on_collision(vel):
 	if ray_cast.is_colliding():
-		if ray_cast.get_collider().is_in_group("Crate"):
-			ray_cast.get_collider().push(Vector2(vel.x,0))
+		if ray_cast.get_collider()!=null:
+			if ray_cast.get_collider().is_in_group("Crate"):
+				ray_cast.get_collider().push(Vector2(vel.x,0))
+
 sync func jump(multiplier) -> void:
 	sprite.scale = Vector2(0.75, 1.25)
 	velocity.y = jump_speed * multiplier
+
 sync func update_player_position(new_position) -> void:
 	global_position = new_position
 	puppet_position = new_position
+
 func username_set(new_value) -> void:
 	username = new_value
 	if get_tree().has_network_peer():
@@ -133,22 +164,26 @@ func username_set(new_value) -> void:
 			username_text_instance.text = username
 			username_text_instance.color = Color.green
 			rset("puppet_username", username)
+
 func puppet_username_set(new_value) -> void:
 	puppet_username = new_value
 	if get_tree().has_network_peer():
 		if not is_network_master() and username_text_instance != null:
 			username_text_instance.text = puppet_username
+
 func puppet_position_set(new_value) -> void:
 	puppet_position=new_value
 	if get_tree().has_network_peer():
 		if not is_network_master():
 			tween.interpolate_property(self,"global_position",global_position,puppet_position,0.05)
 			tween.start()
+
 func set_cam_limit(left, top, right, bottom) -> void:
 	camera.limit_left = left
 	camera.limit_top = top
 	camera.limit_right = right
 	camera.limit_bottom = bottom
+
 func emit_death() -> void:
 	dead = true
 	yield(get_tree().create_timer(1),"timeout")
@@ -165,6 +200,7 @@ func _on_Network_tick_rate_timeout():
 			rset_unreliable("puppet_scale",sprite.scale)
 			rset_unreliable("puppet_dead",dead)
 			rset_unreliable("puppet_emitting",particles.emitting)
+
 func _on_HitBox_area_entered(area):
 	if get_tree().has_network_peer():
 		if is_network_master():
@@ -172,21 +208,28 @@ func _on_HitBox_area_entered(area):
 				rpc("jump",area.multiplier)
 			if area.is_in_group("Player_damager"):
 				emit_death()
+
 func _on_MoveRightButton_button_up():
 	_moving_direction = 0
+
 func _on_MoveLeftTouchButton_pressed():
 	_moving_direction = -1
+
 func _on_MoveLeftTouchButton_released():
 	_moving_direction = 0
+
 func _on_MoveRightTouchButton_pressed():
 	_moving_direction = 1
+
 func _on_MoveRightTouchButton_released():
 	_moving_direction = 0
+
 func _on_JumpTouchButton_pressed():
 	if not _jump_touch_pressed:
 		_jump_touch_pressed = true
 		if is_on_floor():
 			jump(1)
+
 func _on_JumpTouchButton_released():
 	_jump_touch_pressed = false
 
