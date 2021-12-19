@@ -30,6 +30,7 @@ var username setget username_set
 var username_text_instance = null
 var pushing_force = 10
 var dead = false
+var sprite_number
 
 var _moving_direction = 0 # left<0<right
 var _jump_touch_pressed = false
@@ -125,11 +126,11 @@ func _apply_animation() -> void:
 	#set animations
 	if is_on_floor():
 		if abs(velocity.x)>0:
-			sprite.play("walk")
+			sprite.play("walk" + str(sprite_number))
 		else:
-			sprite.play("idle")
+			sprite.play("idle" + str(sprite_number))
 	else:
-		sprite.play("jump")
+		sprite.play("jump" + str(sprite_number))
 	#bounce when drop
 	if is_on_floor() and !was_on_floor:
 		sprite.scale = Vector2(1.1, 0.9)

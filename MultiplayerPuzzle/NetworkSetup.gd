@@ -32,6 +32,11 @@ puppet func show_tile_map():
 
 func instance_player(id) -> void:
 	var player_instance = Global.instance_node_at_location(player,Persistents,Vector2(rand_range(200,1500),256))
+	var counter = 0
+	for child in Persistents.get_children():
+		if child.is_in_group("Player"):
+			counter += 1
+	player_instance.sprite_number = counter
 	player_instance.name=str(id)
 	player_instance.set_network_master(id)
 	player_instance.username = username_text_edit.text
