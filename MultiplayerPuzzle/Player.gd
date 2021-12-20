@@ -22,6 +22,8 @@ onready var camera = $Camera2D
 onready var ray_cast = $RayCast2D
 onready var particles = $DeathParticles
 onready var control_button = $ControlUI/Buttons
+onready var pause_control = $ControlUI/PauseControl
+
 
 
 var velocity = Vector2.ZERO
@@ -66,22 +68,25 @@ func _process(delta) -> void:
 				move_and_slide(puppet_velocity)
 			_apply_animation_over_network()
 
-func init_prompt() -> void:
+func init_quit(show_prompt = false) -> void:
 	for child in Persistents.get_children():
 		if child.is_in_group("Net"):
 			child.queue_free()
 	Network.reset_network_connection()
-	if Global.ui != null:
-		var prompt = Global.instance_node(load("res://SimplePrompt.tscn"), Global.ui)
-		prompt.set_text("Disconnected from server")
+	if show_prompt:
+		if Global.ui != null:
+			var prompt = Global.instance_node(load("res://SimplePrompt.tscn"), Global.ui)
+			prompt.set_text("Disconnected from server")
+	else:
+		get_tree().change_scene("res://NetworkSetup.tscn")
 
-func dis() -> void:
+func quit_game() -> void:
 	if get_tree().has_network_peer():
 		if get_tree().is_network_server():
 			Network.server.close_connection()
 		elif is_network_master():
 			Network.client.close_connection()
-		init_prompt()
+		init_quit()
 
 func _input(event):
 	if event is InputEventKey and event.pressed:
@@ -101,15 +106,16 @@ func _input(event):
 
 func _get_input() -> void:
 	velocity.x = 0
-	if Input.is_action_pressed("ui_right") or _moving_direction>0:
-		velocity.x += speed
-	if Input.is_action_pressed("ui_left") or _moving_direction<0:
-		velocity.x -= speed
-	if Input.is_action_just_pressed("ui_accept"):
-		if is_on_floor():
-			jump(1)
-	if Input.is_action_just_pressed("ui_focus_next"):
-		dis()
+	if not pause_control.visible:
+		if Input.is_action_pressed("ui_right") or _moving_direction>0:
+			velocity.x += speed
+		if Input.is_action_pressed("ui_left") or _moving_direction<0:
+			velocity.x -= speed
+		if Input.is_action_just_pressed("ui_accept"):
+			if is_on_floor():
+				jump(1)
+		if Input.is_action_just_pressed("ui_focus_next"):
+			quit_game()
 
 func _apply_animation() -> void:
 	#flip animations
@@ -248,3 +254,25 @@ func _on_JumpTouchButton_pressed():
 func _on_JumpTouchButton_released():
 	_jump_touch_pressed = false
 
+
+
+
+func _on_PCPauseButton_pressed():
+	pause_control.visible = true
+	control_button.visible = false
+
+
+
+func _on_QuitButton_pressed():
+	quit_game()
+
+
+func _on_ResumeButton_pressed():
+	pause_control.visible = false
+	if OS.get_name() != "Windows":
+		control_button.visible = true
+
+
+func _on_PCPauseButton_button_up():
+	pause_control.visible = true
+	control_button.visible = false

@@ -84,16 +84,17 @@ __meta__ = {
 
 [node name="UsernameTextEdit" type="LineEdit" parent="MultiplayerConfig/VBoxContainer"]
 margin_right = 500.0
-margin_bottom = 51.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 0, 100 )
 custom_fonts/font = ExtResource( 1 )
 align = 1
 placeholder_text = "Username"
 
 [node name="CreateServerButton" type="Button" parent="MultiplayerConfig/VBoxContainer"]
-margin_top = 91.0
+margin_top = 140.0
 margin_right = 500.0
-margin_bottom = 138.0
-rect_min_size = Vector2( 500, 0 )
+margin_bottom = 240.0
+rect_min_size = Vector2( 500, 100 )
 custom_fonts/font = ExtResource( 1 )
 text = "Create Server"
 __meta__ = {
@@ -101,9 +102,10 @@ __meta__ = {
 }
 
 [node name="JoinServerButton" type="Button" parent="MultiplayerConfig/VBoxContainer"]
-margin_top = 178.0
+margin_top = 280.0
 margin_right = 500.0
-margin_bottom = 225.0
+margin_bottom = 380.0
+rect_min_size = Vector2( 0, 100 )
 custom_fonts/font = ExtResource( 1 )
 text = " Join Server"
 __meta__ = {
@@ -114,10 +116,8 @@ __meta__ = {
 script = ExtResource( 4 )
 
 [node name="DeviceIP" type="Label" parent="UI"]
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-margin_top = -48.0
+margin_bottom = 41.0
 custom_fonts/font = ExtResource( 1 )
 align = 1
 valign = 1
@@ -126,11 +126,14 @@ __meta__ = {
 }
 
 [node name="StartGameButton" type="Button" parent="UI"]
-margin_left = 1565.85
-margin_top = 51.4899
-margin_right = 1865.85
-margin_bottom = 201.49
-rect_min_size = Vector2( 300, 150 )
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -150.0
+margin_top = -120.0
+margin_right = 150.0
+rect_min_size = Vector2( 300, 120 )
 custom_fonts/font = ExtResource( 1 )
 text = "START"
 __meta__ = {
